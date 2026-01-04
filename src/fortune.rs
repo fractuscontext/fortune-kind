@@ -82,7 +82,15 @@ pub fn get_quote(quote_size: &u8) {
     //let file = handle_file_errors(fortune_dir, &file::pick_file);
     let file = &random::get_random_file_weighted(PathBuf::from(get_fortune_dir())).unwrap();
 
-    let quotes: Vec<&str> = file.split("\n%\n").collect();
+    // Fix: Filter out empty strings caused by trailing delimiters
+    let quotes: Vec<&str> = file.split("\n%\n")
+        .filter(|s| !s.trim().is_empty())
+        .collect();
+
+    // Fix: Prevent panic if the file was empty or only contained delimiters
+    if quotes.is_empty() {
+        return;
+    }
 
     let mut tmp = vec![];
 
@@ -101,18 +109,29 @@ pub fn get_quote(quote_size: &u8) {
             if target_length < 1 {
                 target_length = 1;
             }
+            
             for q in &quotes {
                 if q.len() <= target_length {
                     tmp.push(q)
                 }
             }
-            println!("{}", tmp[random::random(tmp.len())]);
+
+            // Fix: Prevent panic if no quotes matched the short length criteria
+            if tmp.is_empty() {
+                // Fallback: If no short quote exists in this file, pick from all quotes
+                println!("{}", quotes[random::random(quotes.len())]);
+            } else {
+                println!("{}", tmp[random::random(tmp.len())]);
+            }
         }
         _ => {
-            println!("{}", quotes[random::random(quotes.len() - 1)]);
+            // Fix: Removed "- 1" because we filtered empty strings. 
+            // random() is exclusive of upper bound, so random(len) is safe.
+            println!("{}", quotes[random::random(quotes.len())]);
         }
     }
 }
+
 
 // TODO: yes, should be used or removed
 // #[cfg(test)]
