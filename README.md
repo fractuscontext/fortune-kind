@@ -19,7 +19,7 @@ SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
 </div>
 
-> **Note** 
+> **Note**
 > This software is under active development. It's a great time to contribute!
 
 ## Try it with Nix ❄️
@@ -46,7 +46,6 @@ nix profile install github:cafkafk/fortune-kind#
 
 > **Warning**
 > Installing packages imperatively isn't idiomatic Nix, as this can lead to [many issues](https://stop-using-nix-env.privatevoid.net/).
-
 
 ##### **Declarative Installation**
 
@@ -78,9 +77,41 @@ Then, add it to your `systemPackages` wherever you prefer:
 
 To install the crate:
 
-```cargo install fortune-kind```
+`cargo install fortune-kind`
 
 </details>
+
+## Building from Source
+
+If you prefer to build manually or want to hack on the code:
+
+### Prerequisites
+
+- [Rust and Cargo](https://rustup.rs/) (1.74.0 or newer)
+
+### Build Steps
+
+1.  **Clone the repository:**
+
+    ```bash
+    git clone https://github.com/cafkafk/fortune-kind
+    cd fortune-kind
+    ```
+
+2.  **Build and Run:**
+
+    ```bash
+    cargo run --release
+    ```
+
+    _Note: The build process automatically generates shell completions and man pages in the `target/` directory._
+
+3.  **Configuration:**
+    By default, `fortune-kind` looks for a `fortunes` folder in the current working directory. You can override this by setting the environment variable:
+    ```bash
+    export FORTUNE_DIR="/path/to/my/fortunes"
+    cargo run --release
+    ```
 
 ## Motivation
 
