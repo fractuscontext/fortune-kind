@@ -5,6 +5,23 @@
 
 use clap::{arg, command, crate_authors, Arg, ArgAction, Command};
 
+
+/// Builds the command line interface configuration.
+///
+/// Defines arguments for filtering fortunes, including a counting argument
+/// for the "short" flag.
+///
+/// # Examples
+///
+/// ```
+/// use clap::ArgAction;
+/// // Assuming `fortune_kind` is the crate name
+/// let cmd = fortune_kind::cli::build_cli();
+/// let matches = cmd.try_get_matches_from(vec!["app", "-ss"]).unwrap();
+///
+/// // Verify that the short flag counts occurrences
+/// assert_eq!(matches.get_count("short"), 2);
+/// ```
 pub fn build_cli() -> Command {
     command!()
         .author(crate_authors!("\n"))

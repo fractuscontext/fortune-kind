@@ -36,6 +36,42 @@ fn get_fortune_off_dir() -> String {
     }
 }
 
+
+/// Searches for fortunes matching a given string pattern and prints them to stdout.
+///
+/// This function reads files from the directory specified by the `FORTUNE_DIR` environment
+/// variable. It iterates through all quotes and prints every match found, not just the first one.
+///
+/// # Arguments
+///
+/// * `pattern` - The string pattern to search for within the fortune files.
+///
+/// # Examples
+///
+/// ```
+/// use std::fs::{self, File};
+/// use std::io::Write;
+/// use std::env;
+/// use tempfile::tempdir;
+///
+/// // 1. Setup a temporary directory and fortune file
+/// let dir = tempdir().unwrap();
+/// let file_path = dir.path().join("test_fortunes");
+/// let mut file = File::create(&file_path).unwrap();
+///
+/// // Write fortunes separated by the standard "%" delimiter
+/// writeln!(file, "Linux is great\n%\nMac is okay\n%\nLinux is fast\n%").unwrap();
+///
+/// // 2. Set the environment variable to point to our temp dir
+/// env::set_var("FORTUNE_DIR", dir.path());
+///
+/// // 3. Search for "Linux" (This would print both Linux quotes to stdout)
+/// fortune_kind::fortune::search_fortunes("Linux");
+/// ```
+///
+/// # Panics
+///
+/// Panics if it cannot read the directory specified by `FORTUNE_DIR`.
 pub fn search_fortunes(pattern: &str) {
     let fortune_dir = get_fortune_dir();
 
@@ -52,32 +88,45 @@ pub fn search_fortunes(pattern: &str) {
     }
 }
 
-/// Retrieves and prints a random quote from the "fortune" file based on the specified size.
+/// Retrieves and prints a random quote from the "fortune" directory.
 ///
-/// The function divides the file content into quotes using the "\n%\n" delimiter.
-/// Depending on the `quote_size` parameter, the function will either print a quote of a specific length
-/// or a completely random one.
+/// The function filters out empty strings and handles trailing delimiters safely.
+/// If a short quote is requested but none are found in the selected file, it falls back
+/// to printing a random quote of any length to prevent crashing.
 ///
 /// # Arguments
 ///
-/// * `quote_size` - A reference to a byte that determines the size of the quote to retrieve.
-///   - `1`: Default size (up to 150 characters).
-///   - `2-254`: Reduces the target length by half for each increment.
+/// * `quote_size` - A reference to a byte determining the target length.
+///   - `1`: Default short size (<= 150 chars).
+///   - `2-254`: Halves the target length for each increment (e.g., 2 = 75 chars).
 ///   - `255`: Prints a humorous message and exits.
-///   - `0` or any other value: Retrieves a completely random quote.
-///
-/// # Panics
-///
-/// This function will panic if it fails to pick a file from the "fortune" directory.
+///   - `0`: Retrieves a completely random quote of any length.
 ///
 /// # Examples
 ///
 /// ```
-/// use your_crate_name::fortune::get_quote;
+/// use std::fs::File;
+/// use std::io::Write;
+/// use std::env;
+/// use tempfile::tempdir;
 ///
-/// get_quote(&1); // Retrieves a quote of default size.
-/// get_quote(&255); // Prints a humorous message and exits.
+/// // 1. Setup temp environment
+/// let dir = tempdir().unwrap();
+/// let file_path = dir.path().join("quotes");
+/// let mut file = File::create(&file_path).unwrap();
+/// writeln!(file, "Short\n%\nThis is a much longer fortune that exceeds the limit\n%").unwrap();
+/// env::set_var("FORTUNE_DIR", dir.path());
+///
+/// // 2. Request a short quote (should pick "Short")
+/// fortune_kind::fortune::get_quote(&1);
+///
+/// // 3. Request any quote (could pick either)
+/// fortune_kind::fortune::get_quote(&0);
 /// ```
+///
+/// # Panics
+///
+/// This function will panic if the `FORTUNE_DIR` is invalid or contains no readable files.
 pub fn get_quote(quote_size: &u8) {
     //let file = handle_file_errors(fortune_dir, &file::pick_file);
     let file = &random::get_random_file_weighted(PathBuf::from(get_fortune_dir())).unwrap();
