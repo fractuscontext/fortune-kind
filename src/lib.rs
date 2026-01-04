@@ -6,4 +6,4 @@ pub mod cli;
 pub mod fortune;
 // These are used internally by fortune.rs, so they live here.
 pub(crate) mod file;
-pub(crate) mod random;
+pub mod random;
