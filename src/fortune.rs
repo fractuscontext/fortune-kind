@@ -39,12 +39,15 @@ fn get_fortune_off_dir() -> String {
 pub fn search_fortunes(pattern: &str) {
     let fortune_dir = get_fortune_dir();
 
-    // TODO: Handle your errors!
+    // TODO: Handle your errors properly in a future PR!
     let files = file::read_all_files(&fortune_dir).unwrap();
+    
     for file in files {
-        let fortune: Option<&str> = file.split("\n%\n").find(|x| x.contains(pattern));
-        if let Some(fortune) = fortune {
-            println!("{}\n%", fortune);
+        // CHANGED: Use filter instead of find to get ALL matches
+        let matches = file.split("\n%\n").filter(|x| x.contains(pattern));
+        
+        for fortune in matches {
+            println!("{}\n%", fortune.trim());
         }
     }
 }
