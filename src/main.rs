@@ -15,10 +15,10 @@ fn main() -> io::Result<()> {
 
     if let Some(pattern) = matches.get_one::<String>("find") {
         fortune::search_fortunes(pattern);
-    } else if let Some(short) = matches.get_one::<u8>("short") {
-        fortune::get_quote(short);
     } else {
-        fortune::get_quote(&0);
+        // Retrieve count. If flag is missing, it returns 0.
+        let short_count = matches.get_count("short");
+        fortune::get_quote(&short_count);
     }
 
     Ok(())
