@@ -182,30 +182,63 @@ pub fn get_quote(quote_size: &u8) {
 }
 
 
-// TODO: yes, should be used or removed
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-//     use assert_cmd::Command;
-//
-//     // /// Tests the behavior of `get_quote` when the default size (1) is provided.
-//     // /// It ensures that the output quote is within the expected length.
-//     /* Doesn't work in CI
-//     #[test]
-//     fn test_get_quote_default_size() {
-//         let mut cmd = Command::cargo_bin("fortune-kind").unwrap();
-//         cmd.arg("-s");
-//         let output = cmd.output().unwrap();
-//         assert!(output.stdout.len() <= SHORT as usize);
-//     }
-//
-//     /// Tests the behavior of `get_quote` when the humorous message trigger (255) is provided.
-//     /// It ensures that the output matches the expected humorous message.
-//     #[test]
-//     fn test_get_quote_humorous_message() {
-//         let mut cmd = Command::cargo_bin("fortune-kind").unwrap();
-//         cmd.arg(format!("-{}", String::from("s").repeat(255)));
-//         let output = cmd.output().unwrap();
-//         assert_eq!(output.stdout, b"WE GET IT, YOU WANT A SHORT FORTUNE\n");
-//     }*/
-// }
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use assert_cmd::Command;
+    use std::fs::File;
+    use std::io::Write;
+    use tempfile::tempdir;
+
+    /// Helper to create a temporary directory with a valid fortune file.
+    /// This is necessary because the binary attempts to read files immediately on startup.
+    fn setup_test_env() -> tempfile::TempDir {
+        let dir = tempdir().unwrap();
+        let file_path = dir.path().join("test_fortunes");
+        let mut file = File::create(file_path).unwrap();
+        
+        // Write a short fortune (Length < 150) and a long one
+        writeln!(
+            file, 
+            "Short fortune.\n%\nThis is a very long fortune that is definitely longer than the short limit... [repeat to ensure length] ...\n%"
+        ).unwrap();
+        
+        dir
+    }
+
+    /// Tests the behavior of `get_quote` when the short flag (-s) is provided once.
+    /// It ensures that the output quote is within the expected length (<= 150 chars).
+    #[test]
+    fn test_get_quote_default_size() {
+        let temp_dir = setup_test_env();
+        let mut cmd = Command::cargo_bin("fortune-kind").unwrap();
+
+        // Point the binary to our temp dir so it finds our file
+        cmd.env("FORTUNE_DIR", temp_dir.path())
+           .arg("-s");
+
+        let output = cmd.output().unwrap();
+        let stdout = String::from_utf8(output.stdout).unwrap();
+
+        assert!(stdout.trim().len() <= SHORT);
+        assert!(!stdout.trim().is_empty());
+    }
+
+    /// Tests the behavior of `get_quote` when the humorous message trigger (255) is provided.
+    /// It ensures that the output matches the expected humorous message.
+    #[test]
+    fn test_get_quote_humorous_message() {
+        // We still need a valid env, otherwise the binary exits with "Couldn't find directory" 
+        // before checking the u8 count.
+        let temp_dir = setup_test_env(); 
+        let mut cmd = Command::cargo_bin("fortune-kind").unwrap();
+
+        cmd.env("FORTUNE_DIR", temp_dir.path())
+           // Generate 255 's' flags (e.g., -sssss...)
+           .arg(format!("-{}", "s".repeat(255)));
+
+        cmd.assert()
+           .success()
+           .stdout("WE GET IT, YOU WANT A SHORT FORTUNE\n");
+    }
+}
