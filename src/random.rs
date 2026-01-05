@@ -1,18 +1,19 @@
 // SPDX-FileCopyrightText: 2023 Christina Sørensen
 // SPDX-FileContributor: Christina Sørensen
+// SPDX-FileContributor: Clare K. Tam
 //
 // SPDX-License-Identifier: AGPL-3.0-only
 
 //! A module for generating random numbers and performing weighted file selection.
-//! 
-//! This module utilizes the `rand` crate to provide uniform distribution for index 
+//!
+//! This module utilizes the `rand` crate to provide uniform distribution for index
 //! selection and weighted distribution for file picking based on file size.
 
-use std::path::PathBuf;
 use rand::prelude::SliceRandom;
 use rand::thread_rng;
 use rand::Rng;
 use std::io::Read;
+use std::path::PathBuf;
 
 use crate::file::get_file_sizes;
 
@@ -122,12 +123,12 @@ mod tests {
     }
 
     /// Tests weighted file selection using a temporary directory.
-    /// It creates one tiny file and one large file, then asserts that 
+    /// It creates one tiny file and one large file, then asserts that
     /// after many iterations, the large file is picked significantly more often.
     #[test]
     fn test_weighted_selection_logic() {
         let dir = tempdir().unwrap();
-        
+
         let small_path = dir.path().join("small.txt");
         let mut small_file = File::create(&small_path).unwrap();
         // 5 bytes
@@ -150,7 +151,12 @@ mod tests {
 
         // Statistically, the 500-byte file should be picked ~99% of the time.
         // We check if it was picked at least 90 times out of 100 to account for rare variance.
-        assert!(large_picks > 90, "Weighted selection failed: Large file only picked {}/{} times", large_picks, iterations);
+        assert!(
+            large_picks > 90,
+            "Weighted selection failed: Large file only picked {}/{} times",
+            large_picks,
+            iterations
+        );
     }
 
     /// Tests that get_random_file_weighted works correctly when pointed at a single file.

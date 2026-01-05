@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: 2023 Christina Sørensen
 // SPDX-FileContributor: Christina Sørensen
+// SPDX-FileContributor: Clare K. Tam
 //
 // SPDX-License-Identifier: AGPL-3.0-only
 
@@ -8,11 +9,14 @@ use std::fs;
 use std::io::Read;
 use std::path::{Path, PathBuf};
 
-/// Reads the contents of all files in a given directory and returns them as a vector of strings.
+/// Reads the contents of a path and returns them as a vector of strings.
+///
+/// If `path` is a file, the vector will contain a single entry with that file's contents.
+/// If `path` is a directory, it will contain the contents of all files within that directory.
 ///
 /// # Arguments
 ///
-/// * `dir` - The path to the directory from which all files will be read.
+/// * `path` - The file or directory path to read.
 ///
 /// # Returns
 ///
@@ -20,13 +24,19 @@ use std::path::{Path, PathBuf};
 ///
 /// # Errors
 ///
-/// Returns an error if:
-/// * The provided directory path is invalid or inaccessible.
-/// * There's an issue reading any of the files.
-pub fn read_all_files(dir: &str) -> Result<Vec<String>, Box<dyn std::error::Error>> {
-    let entries = fs::read_dir(dir)?;
+/// Returns an error if the path is invalid, inaccessible, or if reading fails.
+pub fn read_all_files<P: AsRef<Path>>(path: P) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    let path = path.as_ref();
     let mut contents_vec = Vec::new();
 
+    if path.is_file() {
+        let mut contents = String::new();
+        fs::File::open(path)?.read_to_string(&mut contents)?;
+        contents_vec.push(contents);
+        return Ok(contents_vec);
+    }
+
+    let entries = fs::read_dir(path)?;
     for entry in entries {
         let path = entry?.path();
         if path.is_file() {
@@ -63,17 +73,15 @@ pub fn read_all_files(dir: &str) -> Result<Vec<String>, Box<dyn std::error::Erro
 /// * The path points to a non-directory file.
 /// * Any I/O error encountered when reading the directory contents or retrieving file metadata.
 ///
-/// # Examples
-///
-/// ```
-/// use std::path::Path;
-///
-/// let sizes = get_file_sizes(Path::new("./some/directory")).expect("Directory should be read");
-/// for (size, path) in sizes {
-///     println!("{} bytes - {:?}", size, path);
-/// }
 /// ```
 pub fn get_file_sizes<P: AsRef<Path>>(path: P) -> std::io::Result<Vec<(u64, PathBuf)>> {
+    let path = path.as_ref();
+
+    if path.is_file() {
+        let metadata = fs::metadata(path)?;
+        return Ok(vec![(metadata.len(), path.to_path_buf())]);
+    }
+
     let entries = fs::read_dir(path)?;
     let mut files: Vec<(u64, PathBuf)> = vec![];
 

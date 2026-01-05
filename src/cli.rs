@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: 2023 Christina Sørensen
 // SPDX-FileContributor: Christina Sørensen
+// SPDX-FileContributor: Clare K. Tam
 //
 // SPDX-License-Identifier: AGPL-3.0-only
 
-use clap::{arg, command, crate_authors, Arg, ArgAction, Command};
-
+use clap::{command, crate_authors, Arg, ArgAction, Command};
 
 /// Builds the command line interface configuration.
 ///
@@ -15,12 +15,15 @@ use clap::{arg, command, crate_authors, Arg, ArgAction, Command};
 ///
 /// ```
 /// use clap::ArgAction;
-/// // Assuming `fortune_kind` is the crate name
 /// let cmd = fortune_kind::cli::build_cli();
-/// let matches = cmd.try_get_matches_from(vec!["app", "-ss"]).unwrap();
 ///
-/// // Verify that the short flag counts occurrences
+/// // Test counting short flag
+/// let matches = cmd.clone().try_get_matches_from(vec!["app", "-ss"]).unwrap();
 /// assert_eq!(matches.get_count("short"), 2);
+///
+/// // Test positional path argument
+/// let matches = cmd.try_get_matches_from(vec!["app", "my_custom_fortunes"]).unwrap();
+/// assert_eq!(matches.get_one::<String>("path").map(|s| s.as_str()), Some("my_custom_fortunes"));
 /// ```
 pub fn build_cli() -> Command {
     command!()
@@ -29,14 +32,16 @@ pub fn build_cli() -> Command {
             Arg::new("all")
                 .short('a')
                 .long("all")
-                .help("Shows all fortunes, including unkind."),
+                .help("Shows all fortunes, including unkind.")
+                .action(ArgAction::SetTrue),
         )
         .arg(
             Arg::new("unkind")
                 .short('o')
                 .short('u')
                 .long("unkind")
-                .help("Shows only unkind fortunes."),
+                .help("Shows only unkind fortunes.")
+                .action(ArgAction::SetTrue),
         )
         .arg(
             Arg::new("find")
@@ -55,7 +60,13 @@ pub fn build_cli() -> Command {
             Arg::new("short")
                 .short('s')
                 .long("short")
-                .action(ArgAction::Count) // it should return a u8 count now
-                .help("Shows a short aphorism."), // typo: aporism -> aphorism
+                .help("Shows a short aphorism. Repeat for shorter (-ss).")
+                .action(ArgAction::Count),
+        )
+        .arg(
+            Arg::new("path")
+                .value_name("PATH")
+                .help("Path to a specific fortune file or directory.")
+                .index(1),
         )
 }
