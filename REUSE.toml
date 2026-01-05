@@ -1,0 +1,43 @@
+# SPDX-FileCopyrightText: 2026 Clare K. Tam
+#
+# SPDX-License-Identifier: AGPL-3.0-only
+
+version = 1
+SPDX-PackageName = "fortune-kind"
+SPDX-PackageSupplier = "Christina Sørensen <christina@cafkafk.com>"
+
+[[annotations]]
+path = "flake.lock"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2023 Christina Sørensen"
+SPDX-License-Identifier = "AGPL-3.0-only"
+
+[[annotations]]
+path = "Cargo.lock"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2023 Christina Sørensen"
+SPDX-License-Identifier = "AGPL-3.0-only"
+
+[[annotations]]
+path = ".envrc"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2023 Christina Sørensen"
+SPDX-License-Identifier = "AGPL-3.0-only"
+
+[[annotations]]
+path = "fortunes/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2023 Christina Sørensen"
+SPDX-License-Identifier = "CC-BY-NC-SA-4.0"
+
+[[annotations]]
+path = "off/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2023 Christina Sørensen"
+SPDX-License-Identifier = "CC-BY-NC-SA-4.0"
+
+[[annotations]]
+path = "oldtunes/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "The Regents of the University of California"
+SPDX-License-Identifier = "BSD-4-Clause"
