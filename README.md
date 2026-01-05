@@ -1,6 +1,7 @@
 <!--
 SPDX-FileCopyrightText: 2023 Christina Sørensen
 SPDX-FileContributor: Christina Sørensen
+SPDX-FileContributor: Clare K. Tam
 
 SPDX-License-Identifier: CC-BY-NC-SA-4.0
 -->
@@ -13,9 +14,9 @@ SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
 [![Built with Nix](https://img.shields.io/badge/Built_With-Nix-5277C3.svg?logo=nixos&labelColor=73C3D5)](https://nixos.org)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
-[![Unit tests](https://github.com/eza-community/eza/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/eza-community/eza/actions/workflows/unit-tests.yml)
-![Crates.io](https://img.shields.io/crates/v/fortune-kind?link=https%3A%2F%2Fcrates.io%2Fcrates%2Feza)
-![Crates.io](https://img.shields.io/crates/l/fortune-kind?link=https%3A%2F%2Fgithub.com%2Fcafkafk%2Feza%2Fblob%2Fmain%2FLICENCE)
+[![Unit tests](https://github.com/cafkafk/fortune-kind/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/cafkafk/fortune-kind/actions/workflows/unit-tests.yml)
+[![Crates.io](https://img.shields.io/crates/v/fortune-kind)](https://crates.io/crates/fortune-kind)
+[![License](https://img.shields.io/crates/l/fortune-kind)](LICENCE)
 
 </div>
 
@@ -24,101 +25,163 @@ SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
 ## Try it with Nix ❄️
 
-If you already have Nix setup with flake support, you can try out `fortune-kind` with the `nix run` command:
+If you have Nix with flake support enabled, you can run `fortune-kind` immediately without installing:
 
-    nix run github:cafkafk/fortune-kind
+```bash
+nix run github:cafkafk/fortune-kind
 
-Nix will build `fortune-kind` and run it.
+```
 
-If you want to pass arguments this way, use e.g. `nix run github:cafkafk/fortune-kind -- -s`.
+To pass arguments (like requesting a short fortune), use `--`:
+
+```bash
+nix run github:cafkafk/fortune-kind -- -s
+
+```
 
 ## Installation
 
 ### Nix/NixOS ❄️
 
-##### **Imparative Installation**
+#### **Imperative Installation**
 
 For `nix profile` users:
 
-```shell
-nix profile install github:cafkafk/fortune-kind#
+```bash
+nix profile install github:cafkafk/fortune-kind
+
 ```
 
-> **Warning**
-> Installing packages imperatively isn't idiomatic Nix, as this can lead to [many issues](https://stop-using-nix-env.privatevoid.net/).
+#### **Declarative Installation**
 
-##### **Declarative Installation**
-
-To add it to your `flake.nix`:
+Add the input to your `flake.nix`:
 
 ```nix
 {
-...
-    inputs.fortune-kind.url = "github:cafkafk/fortune-kind";
-...
+  inputs.fortune-kind.url = "github:cafkafk/fortune-kind";
+  # ...
 }
 ```
 
-Then, add it to your `systemPackages` wherever you prefer:
+Then add it to your `systemPackages`:
 
 ```nix
-{ inputs }: {
+{ inputs, pkgs, ... }: {
   environment.systemPackages = [
     inputs.fortune-kind.packages.${pkgs.system}.default
   ];
 }
+
 ```
 
-<details>
-    <summary> Installing From crates.io </summary>
+### Cargo (crates.io) 🦀
 
-> **Important**
-> Installing from crates.io won't set a `FORTUNE_DIR`
+You can install the latest release directly from crates.io.
 
-To install the crate:
+> **Important**: Installing via Cargo does not bundle the fortune data files by default. You will need to manually set `FORTUNE_DIR` or provide a path argument.
 
-`cargo install fortune-kind`
+```bash
+cargo install fortune-kind
 
-</details>
+```
 
 ## Building from Source
 
-If you prefer to build manually or want to hack on the code:
+If you want to hack on the code, test the latest features, or verify the build process, you have two options.
 
-### Prerequisites
+### Option 1: Using Nix (Recommended)
 
-- [Rust and Cargo](https://rustup.rs/) (1.74.0 or newer)
+This is the most reliable method as it ensures all environment variables and paths are wrapped correctly.
 
-### Build Steps
+1. **Build the package:**
+```bash
+nix build
 
-1.  **Clone the repository:**
+```
 
-    ```bash
-    git clone https://github.com/cafkafk/fortune-kind
-    cd fortune-kind
-    ```
 
-2.  **Build and Run:**
+2. **Run the binary:**
+The build output is symlinked to `./result`.
+```bash
+./result/bin/fortune-kind
 
-    ```bash
-    cargo run --release
-    ```
+```
 
-    _Note: The build process automatically generates shell completions and man pages in the `target/` directory._
 
-3.  **Configuration:**
-    By default, `fortune-kind` looks for a `fortunes` folder in the current working directory. You can override this by setting the environment variable:
-    ```bash
-    export FORTUNE_DIR="/path/to/my/fortunes"
-    cargo run --release
-    ```
+3. **Inspect the Wrapper:**
+If you are curious how `fortune-kind` finds its data files, you can inspect the generated wrapper script:
+```bash
+less ./result/bin/fortune-kind
+
+```
+
+
+You will see that `FORTUNE_DIR` and `FORTUNE_OFF_DIR` are explicitly set to paths inside the Nix store.
+
+### Option 2: Using Cargo
+
+Requires Rust 1.74.0 or newer.
+
+1. **Clone the repository:**
+```bash
+git clone [https://github.com/cafkafk/fortune-kind](https://github.com/cafkafk/fortune-kind)
+cd fortune-kind
+
+```
+
+
+2. **Build and Run:**
+```bash
+cargo run --release
+
+```
+
+
+*Note: `fortune-kind` will automatically look for the `fortunes` directory in the project root if no environment variables are set.*
+3. **Run Tests:**
+We use `tempfile` to ensure tests are isolated from your filesystem.
+```bash
+cargo test
+
+```
+
+
+
+## Usage
+
+`fortune-kind` prints a random adage. You can customize its behavior with flags or by pointing it to your own data files.
+
+```bash
+# Get a random fortune
+fortune-kind
+
+# Get a short fortune (<= 150 chars)
+fortune-kind -s
+
+# Get an even shorter fortune (<= 75 chars)
+fortune-kind -ss
+
+# Include "unkind" (offensive/off-color) fortunes
+fortune-kind -u
+
+# Read fortunes from a specific file or directory
+fortune-kind ./my-custom-quotes.txt
+
+```
+
+### Configuration
+
+If you installed via Cargo or are running a binary without the Nix wrapper, you can configure data paths via environment variables:
+
+* **`FORTUNE_DIR`**: Directory containing standard fortunes.
+* **`FORTUNE_OFF_DIR`**: Directory containing "unkind" fortunes (accessed via `-u`).
 
 ## Motivation
 
 Many distributions have faced challenges with `fortune-mod` due to concerns
 about its maintainer and the presence of contentious fortunes in its data
 files. Instead of trying to replace `fortune-mod` or recreate a historically
-accurate fortune program, our goal is to serve those who value handpicked fortunes.
+accurate fortune program, our goal is to serve those who value handpicked, curated fortunes.
 
 ## Contributing
 
@@ -135,3 +198,4 @@ topic of discussion, the final say rests with cafkafk's judgment.
 
 For more info about contributing and the acceptance policy, please see
 [EDITORIAL.md](https://github.com/cafkafk/fortune-kind/blob/main/EDITORIAL.md)
+
