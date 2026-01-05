@@ -94,27 +94,27 @@ If you want to hack on the code, test the latest features, or verify the build p
 This is the most reliable method as it ensures all environment variables and paths are wrapped correctly.
 
 1. **Build the package:**
+
 ```bash
 nix build
 
 ```
 
-
 2. **Run the binary:**
-The build output is symlinked to `./result`.
+   The build output is symlinked to `./result`.
+
 ```bash
 ./result/bin/fortune-kind
 
 ```
 
-
 3. **Inspect the Wrapper:**
-If you are curious how `fortune-kind` finds its data files, you can inspect the generated wrapper script:
+   If you are curious how `fortune-kind` finds its data files, you can inspect the generated wrapper script:
+
 ```bash
 less ./result/bin/fortune-kind
 
 ```
-
 
 You will see that `FORTUNE_DIR` and `FORTUNE_OFF_DIR` are explicitly set to paths inside the Nix store.
 
@@ -123,29 +123,27 @@ You will see that `FORTUNE_DIR` and `FORTUNE_OFF_DIR` are explicitly set to path
 Requires Rust 1.74.0 or newer.
 
 1. **Clone the repository:**
+
 ```bash
-git clone [https://github.com/cafkafk/fortune-kind](https://github.com/cafkafk/fortune-kind)
+git clone https://github.com/cafkafk/fortune-kind
 cd fortune-kind
 
 ```
 
-
 2. **Build and Run:**
+
 ```bash
 cargo run --release
 
 ```
 
-
-*Note: `fortune-kind` will automatically look for the `fortunes` directory in the project root if no environment variables are set.*
-3. **Run Tests:**
+_Note: `fortune-kind` will automatically look for the `fortunes` directory in the project root if no environment variables are set._ 3. **Run Tests:**
 We use `tempfile` to ensure tests are isolated from your filesystem.
+
 ```bash
 cargo test
 
 ```
-
-
 
 ## Usage
 
@@ -173,8 +171,8 @@ fortune-kind ./my-custom-quotes.txt
 
 If you installed via Cargo or are running a binary without the Nix wrapper, you can configure data paths via environment variables:
 
-* **`FORTUNE_DIR`**: Directory containing standard fortunes.
-* **`FORTUNE_OFF_DIR`**: Directory containing "unkind" fortunes (accessed via `-u`).
+- **`FORTUNE_DIR`**: Directory containing standard fortunes.
+- **`FORTUNE_OFF_DIR`**: Directory containing "unkind" fortunes (accessed via `-u`).
 
 ## Motivation
 
@@ -198,4 +196,3 @@ topic of discussion, the final say rests with cafkafk's judgment.
 
 For more info about contributing and the acceptance policy, please see
 [EDITORIAL.md](https://github.com/cafkafk/fortune-kind/blob/main/EDITORIAL.md)
-
