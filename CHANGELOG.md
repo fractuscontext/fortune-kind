@@ -7,11 +7,65 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 # Changelog
 
+## [0.1.14] - 2026-01-05
+
+### Bug Fixes
+
+- Remove debug print statement
+- Use ArgAction::Count for short flag to correctly pass u8
+- Return all matching fortunes, not just the first one
+- Prevent panic on empty matches and filter empty delimiters
+
+### Documentation
+
+- Update docstrings with reproducible tempfile examples
+- Add build instrustions
+- Rewrite README with updated build and usage instructions
+
+### Miscellaneous Tasks
+
+- Convert REUSE config to TOML and update maintenance files
+
+### Refactor
+
+- Restructure project into library and binary layout
+- [**breaking**] Architecture overhaul and absolute path resolution
+
+### Testing
+
+- Revive and fix cli integration tests
+- Rewrite random.rs tests and add comprehensive documentation
+
+### Build
+
+- Bump clap_complete from 4.4.9 to 4.4.10
+- Bump clap_mangen from 0.2.17 to 0.2.19
+- Bump nick-fields/retry from 2 to 3
+- Bump webiny/action-conventional-commits from 1.2.0 to 1.3.0
+- Bump clap_complete from 4.4.10 to 4.5.1
+- Set MSRV to `1.74.0`
+- Bump clap from 4.4.18 to 4.5.1
+- Bump assert_cmd from 2.0.13 to 2.0.14
+- Bump tempfile from 3.9.0 to 3.10.1
+- Bump clap_mangen from 0.2.19 to 0.2.20
+- Bump DeterminateSystems/nix-installer-action from 9 to 10
+- Move flake-utils from semnix to numtide
+- 2024-10-01 flake bump
+- 2024-10-01 cargo bump
+
+### Ci
+
+- Add outdated workflow
+
 ## [0.1.13] - 2024-02-01
 
 ### Features
 
 - Add one fedi fortune
+
+### Miscellaneous Tasks
+
+- Release fortune-kind v0.1.13
 
 ### Build
 
@@ -149,8 +203,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 ### Build
 
-- Bump actions/checkout from 3 to 4
 - Bump DeterminateSystems/nix-installer-action from 5 to 6
+- Bump actions/checkout from 3 to 4
 
 ## [0.1.4] - 2023-10-12
 
@@ -372,4 +426,5 @@ SPDX-License-Identifier: AGPL-3.0-only
 - Move tempfile to dev-dependencies
 - Add dev-dependency assert-cmd
 - Add release script
+
 
